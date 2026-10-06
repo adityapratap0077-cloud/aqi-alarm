@@ -42,6 +42,12 @@
     background:rgba(0,0,0,.22); backdrop-filter:blur(8px); color:#fff; font-size:17px; cursor:pointer;
     display:flex; align-items:center; justify-content:center; transition:transform .2s ease; }
   .gbtn:active{ transform:scale(.9) rotate(-40deg); }
+  .ic{ width:19px; height:19px; flex:none; stroke:currentColor; stroke-width:1.8; fill:none;
+    stroke-linecap:round; stroke-linejoin:round; }
+  .chev .ic{ width:13px; height:13px; }
+  .cmp-x .ic{ width:15px; height:15px; }
+  .pinbtn .ic{ width:14px; height:14px; vertical-align:-2px; margin-right:7px; }
+  .cmp-empty .ic{ width:14px; height:14px; vertical-align:-2px; }
   .sun{ position:absolute; top:13%; left:50%; transform:translateX(-50%); width:190px; height:190px;
     border-radius:50%; pointer-events:none; transition:opacity 1.2s ease, filter 1.2s ease;
     background:radial-gradient(circle, rgba(255,255,255,.95) 0%, rgba(255,255,255,.35) 42%, transparent 68%); }
@@ -199,6 +205,14 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="i-share" viewBox="0 0 24 24"><path d="M7 17L17 7M8.5 7H17v8.5"/></symbol>
+<symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 3.5V9h-5.5"/></symbol>
+<symbol id="i-locate" viewBox="0 0 24 24"><circle cx="12" cy="12" r="6.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+<symbol id="i-chev" viewBox="0 0 24 24"><path d="M6 9.5l6 6 6-6"/></symbol>
+<symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+</defs></svg>
 <canvas id="dust"></canvas>
 <div class="grain"></div>
 <div class="wrap"><div class="screen">
@@ -214,9 +228,9 @@
           <div class="sky-time" id="upd"></div>
         </div>
         <div class="sky-btns">
-          <button class="gbtn" id="share-btn" aria-label="Share" title="Share">⤴</button>
-          <button class="gbtn" id="refresh" aria-label="Refresh" title="Refresh">↻</button>
-          <button class="gbtn" id="locate" aria-label="Use my location" title="Use my location">◎</button>
+          <button class="gbtn" id="share-btn" aria-label="Share" title="Share"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg></button>
+          <button class="gbtn" id="refresh" aria-label="Refresh" title="Refresh"><svg class="ic" aria-hidden="true"><use href="#i-refresh"/></svg></button>
+          <button class="gbtn" id="locate" aria-label="Use my location" title="Use my location"><svg class="ic" aria-hidden="true"><use href="#i-locate"/></svg></button>
         </div>
       </div>
       <div class="sky-chips" id="sky-chips"></div>
@@ -435,7 +449,7 @@ function polRow(key, v, i){
   return `<div class="pol-row rise" style="animation-delay:${0.35 + i * 0.08}s" data-pol="${key}">` +
     `<div class="pol-main"><div class="pol-name">${POL_NAMES[key]}</div>` +
     `<div class="pol-track"><div class="pol-fill" data-w="${pct}" style="background:${c}"></div></div>` +
-    `<div class="pol-val">${v}</div><div class="chev">▾</div></div>` +
+    `<div class="pol-val">${v}</div><div class="chev" aria-hidden="true"><svg class="ic"><use href="#i-chev"/></svg></div></div>` +
     `<div class="pol-hint">${POL_INFO[key] || ''}</div></div>`;
 }
 function sparkline(fc){
@@ -532,7 +546,7 @@ async function loadAir(){
       polRow('no2', d.pollutants.no2, 2) + polRow('o3', d.pollutants.o3, 3) + `</div>` +
       sparkline(d.forecast) + bestDay(d.forecast) +
       (currentKey.type === 'city' && !isPinned ?
-        `<button class="pinbtn rise" id="pin-btn" style="animation-delay:.7s">＋ Pin ${esc(niceCity)} to compare</button>` : '');
+        `<button class="pinbtn rise" id="pin-btn" style="animation-delay:.7s"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Pin ${esc(niceCity)} to compare</button>` : '');
     requestAnimationFrame(() => { const s = $('sdot'); if (s) s.style.left = pct + '%'; });
     document.querySelectorAll('.pol-fill').forEach((el, i) =>
       setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 420 + i * 90));
@@ -606,7 +620,7 @@ async function loadCompare(){
   const pins = pinnedCities();
   const body = $('cmp-body');
   if (!pins.length){
-    body.innerHTML = `<div class="cmp-empty" style="grid-column:1/-1">No pinned cities yet.<br>Open any city and tap <b>＋ Pin to compare</b>,<br>or pin from search results.</div>`;
+    body.innerHTML = `<div class="cmp-empty" style="grid-column:1/-1">No pinned cities yet.<br>Open any city and tap <b><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Pin to compare</b>,<br>or pin from search results.</div>`;
     return;
   }
   body.innerHTML = pins.map(p =>
@@ -621,13 +635,13 @@ async function loadCompare(){
   body.innerHTML = results.map((res, i) => {
     const p = pins[i];
     if (res.status !== 'fulfilled'){
-      return `<div class="cmp-card"><button class="cmp-x" data-x="${esc(p)}">×</button>` +
+      return `<div class="cmp-card"><button class="cmp-x" data-x="${esc(p)}" aria-label="Remove"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>` +
         `<div class="cmp-city">${esc(p)}</div><div class="sub">No data</div></div>`;
     }
     const d = res.value;
     const nice = (d.city.split('(')[0] || p).trim();
     return `<div class="cmp-card" data-city="${esc(p)}">` +
-      `<button class="cmp-x" data-x="${esc(p)}" aria-label="Remove">×</button>` +
+      `<button class="cmp-x" data-x="${esc(p)}" aria-label="Remove"><svg class="ic" aria-hidden="true"><use href="#i-x"/></svg></button>` +
       `<div class="cmp-wash" style="background:radial-gradient(120% 90% at 50% 0%, ${d.band.color}55, transparent 70%)"></div>` +
       `<div class="cmp-city">${esc(nice)}</div>` +
       `<div class="cmp-aqi">${d.aqi}</div>` +
