@@ -2,6 +2,13 @@
 <html lang="en"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0f14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>AQI Alarm India — live air quality</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900&display=swap');
@@ -12,7 +19,6 @@
   }
   html,body{ height:100%; }
   body{ background:var(--ink); color:var(--paper); font-family:'Archivo',system-ui,sans-serif; overflow-x:hidden; }
-  /* living air: particle canvas + gradient wash + film grain */
   #dust{ position:fixed; inset:0; z-index:0; pointer-events:none; }
   .atmo{ position:fixed; inset:0; z-index:0; pointer-events:none; transition:background 1.2s ease;
     background:
@@ -21,26 +27,34 @@
   .grain{ position:fixed; inset:0; z-index:3; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); }
   .wrap{ max-width:480px; margin:0 auto; min-height:100%; position:relative; z-index:1; }
-  .screen{ position:relative; padding:28px 24px 24px; min-height:100dvh; display:flex; flex-direction:column; }
-  .top{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
+  .screen{ position:relative; padding:28px 24px 24px; min-height:100dvh; display:flex; flex-direction:column; overflow:hidden; }
+  .top{ display:flex; justify-content:space-between; align-items:center; gap:12px; }
   .place{ font-size:22px; font-weight:700; letter-spacing:-.02em; }
   .time{ font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .iconbtn{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#fff;
+    width:38px; height:38px; border-radius:12px; font-size:17px; cursor:pointer; flex:none;
+    display:flex; align-items:center; justify-content:center; transition:transform .2s ease; }
+  .iconbtn:active{ transform:scale(.92) rotate(-40deg); }
+  .top-right{ display:flex; align-items:center; gap:8px; }
   /* hero */
   .hero{ margin-top:26px; }
   .aqi{ font-size:clamp(100px,32vw,160px); font-weight:900; line-height:.92; letter-spacing:-.05em;
-    font-stretch:125%; font-variant-numeric:tabular-nums;
-    animation:breathe 5s ease-in-out infinite; }
+    font-stretch:125%; font-variant-numeric:tabular-nums; animation:breathe 5s ease-in-out infinite; }
   @keyframes breathe{
     0%,100%{ text-shadow:0 0 60px var(--sev-glow); }
     50%{ text-shadow:0 0 110px var(--sev-glow), 0 0 24px var(--sev-glow); }
   }
-  .band{ display:inline-block; font-size:24px; font-weight:800; letter-spacing:-.02em; margin-top:10px;
+  .chips{ display:flex; gap:8px; margin-top:12px; flex-wrap:wrap; }
+  .band{ display:inline-block; font-size:24px; font-weight:800; letter-spacing:-.02em;
     font-stretch:112%; padding:6px 16px 8px; border-radius:99px;
     background:color-mix(in srgb, var(--sev) 22%, transparent);
     border:1px solid color-mix(in srgb, var(--sev) 55%, transparent); }
+  .chip{ display:inline-flex; align-items:center; font-size:13px; font-weight:700; color:#d7dce4;
+    padding:7px 13px; border-radius:99px; background:rgba(255,255,255,.07);
+    border:1px solid rgba(255,255,255,.12); font-variant-numeric:tabular-nums; }
+  .chip .dot{ width:8px; height:8px; border-radius:50%; margin-right:7px; }
   .advice{ font-size:16px; line-height:1.55; color:#d7dce4; margin-top:16px; max-width:32ch; }
   .advice-hi{ font-size:15px; color:var(--muted); margin-top:8px; }
-  /* entrance choreography */
   .rise{ opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
   @keyframes rise{ to{ opacity:1; transform:none; } }
   /* severity ruler */
@@ -70,7 +84,9 @@
   h2.stitle{ font-size:26px; font-weight:800; letter-spacing:-.02em; margin-top:8px; font-stretch:112%; }
   .sub{ font-size:14px; color:var(--muted); margin-top:6px; }
   .rank-row{ position:relative; display:flex; align-items:center; gap:14px; padding:15px 12px;
-    border-bottom:1px solid rgba(255,255,255,.08); border-radius:12px; overflow:hidden; }
+    border-bottom:1px solid rgba(255,255,255,.08); border-radius:12px; overflow:hidden; cursor:pointer;
+    transition:transform .15s ease; }
+  .rank-row:active{ transform:scale(.985); }
   .rank-wash{ position:absolute; inset:0; pointer-events:none; }
   .rank-n{ width:44px; font-size:30px; font-weight:900; font-stretch:125%; color:var(--muted);
     font-variant-numeric:tabular-nums; position:relative; }
@@ -86,19 +102,38 @@
   .sug{ padding:14px 4px; border-bottom:1px solid rgba(255,255,255,.08); font-size:16px; cursor:pointer;
     display:flex; justify-content:space-between; align-items:center; }
   .sug small{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .quick{ display:flex; gap:8px; flex-wrap:wrap; margin-top:16px; }
+  .quick button{ background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12); color:#fff;
+    font-family:inherit; font-size:14px; font-weight:600; padding:9px 15px; border-radius:99px; cursor:pointer;
+    transition:transform .15s ease; }
+  .quick button:active{ transform:scale(.94); }
+  .qlabel{ font-size:13px; font-weight:700; color:var(--muted); margin-top:20px; letter-spacing:.02em; }
+  /* skeletons */
+  .sk{ border-radius:12px; background:linear-gradient(100deg, rgba(255,255,255,.05) 40%, rgba(255,255,255,.11) 50%, rgba(255,255,255,.05) 60%);
+    background-size:200% 100%; animation:shimmer 1.3s linear infinite; }
+  @keyframes shimmer{ to{ background-position:-200% 0; } }
+  /* view transitions */
+  .view{ display:none; }
+  .view.on{ display:block; animation:vin .32s cubic-bezier(.2,.7,.2,1); }
+  @keyframes vin{ from{ opacity:0; transform:translateX(26px); } to{ opacity:1; transform:none; } }
   /* nav */
   .nav{ margin-top:auto; display:flex; justify-content:space-around; padding:16px 0 4px;
     border-top:1px solid rgba(255,255,255,.08); }
   .nav button{ background:none; border:none; color:var(--muted); font-size:14px; font-weight:600;
-    font-family:inherit; cursor:pointer; padding:6px 12px; }
+    font-family:inherit; cursor:pointer; padding:6px 12px; transition:color .2s ease, transform .15s ease; }
   .nav button.on{ color:#fff; }
+  .nav button:active{ transform:scale(.93); }
   .src{ text-align:center; font-size:10px; color:rgba(255,255,255,.3); margin-top:10px; }
-  .view{ display:none; } .view.on{ display:block; }
-  .loading{ text-align:center; color:var(--muted); padding:60px 0; font-size:15px; }
+  .loading{ padding:20px 0; display:flex; flex-direction:column; gap:14px; }
   .err{ text-align:center; color:#ff8a8a; padding:60px 20px; font-size:15px; line-height:1.6; }
+  .loc-prompt{ margin-top:18px; padding:16px; border-radius:16px; background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.1); display:flex; gap:12px; align-items:center; }
+  .loc-prompt p{ font-size:14px; line-height:1.5; color:#d7dce4; flex:1; }
+  .loc-prompt button{ background:#fff; color:#0d0f14; border:none; font-family:inherit; font-weight:700;
+    font-size:14px; padding:10px 16px; border-radius:99px; cursor:pointer; flex:none; }
   @media (prefers-reduced-motion: reduce){
-    .aqi{ animation:none; } .rise{ animation-duration:.01s; }
-    .pol-fill,.scale-dot{ transition:none; }
+    .aqi{ animation:none; } .rise,.view.on{ animation-duration:.01s; }
+    .pol-fill,.scale-dot{ transition:none; } .sk{ animation-duration:2.5s; }
   }
 </style>
 </head>
@@ -111,21 +146,27 @@
   <div class="view on" id="v-air">
     <div class="top">
       <div class="place" id="city">…</div>
-      <div class="time" id="upd"></div>
+      <div class="top-right">
+        <div class="time" id="upd"></div>
+        <button class="iconbtn" id="refresh" aria-label="Refresh" title="Refresh">↻</button>
+        <button class="iconbtn" id="locate" aria-label="Use my location" title="Use my location">◎</button>
+      </div>
     </div>
-    <div id="air-body"><div class="loading">Reading the air…</div></div>
+    <div id="air-body"></div>
+    <div id="loc-prompt"></div>
   </div>
 
   <div class="view" id="v-rank">
     <h2 class="stitle">Most polluted right now</h2>
     <div class="sub" id="rank-upd"></div>
-    <div id="rank-body" style="margin-top:12px"><div class="loading">Ranking cities…</div></div>
+    <div id="rank-body" style="margin-top:12px"></div>
   </div>
 
   <div class="view" id="v-search">
     <h2 class="stitle">Find your city</h2>
-    <input class="searchbox" id="q" placeholder="Type a city name…" autocomplete="off">
+    <input class="searchbox" id="q" placeholder="Type a city name…" autocomplete="off" aria-label="Search city">
     <div id="sug"></div>
+    <div id="quick"></div>
   </div>
 
   <div class="nav">
@@ -141,10 +182,10 @@ const $ = (id) => document.getElementById(id);
 const atmo = $('atmo');
 const dust = $('dust');
 const dctx = dust.getContext('2d');
-let particles = [];
-let dustColor = '#8f3f97';
-let dustRAF = null;
+let particles = [], dustColor = '#8f3f97', dustRAF = null;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const QUICK_CITIES = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad'];
+const POL_NAMES = { pm25: 'PM2.5', pm10: 'PM10', no2: 'NO₂', o3: 'O₃', so2: 'SO₂', co: 'CO' };
 
 function sizeDust(){
   dust.width = innerWidth * devicePixelRatio;
@@ -154,21 +195,16 @@ function sizeDust(){
 sizeDust();
 addEventListener('resize', sizeDust);
 
-/* The living air: particle density, drift speed and glow all follow the AQI.
-   Clean air = a few slow pale motes. Hazardous air = thick churning smog. */
 function initDust(color, aqi){
   dustColor = color;
   cancelAnimationFrame(dustRAF);
   const n = Math.round(36 + (Math.min(aqi, 500) / 500) * 130);
   const speed = 0.12 + (Math.min(aqi, 500) / 500) * 0.9;
   particles = Array.from({length: n}, () => ({
-    x: Math.random() * innerWidth,
-    y: Math.random() * innerHeight,
+    x: Math.random() * innerWidth, y: Math.random() * innerHeight,
     r: 0.8 + Math.random() * (1.6 + (aqi / 500) * 3.2),
-    vx: (Math.random() - 0.5) * speed,
-    vy: (Math.random() - 0.5) * speed * 0.7 - 0.05,
-    a: 0.08 + Math.random() * 0.3,
-    ph: Math.random() * Math.PI * 2
+    vx: (Math.random() - 0.5) * speed, vy: (Math.random() - 0.5) * speed * 0.7 - 0.05,
+    a: 0.08 + Math.random() * 0.3, ph: Math.random() * Math.PI * 2
   }));
   if (!reducedMotion) tickDust(0); else drawDust(0);
 }
@@ -176,10 +212,8 @@ function drawDust(t){
   dctx.clearRect(0, 0, innerWidth, innerHeight);
   for (const p of particles){
     const tw = 0.6 + 0.4 * Math.sin(t / 900 + p.ph);
-    dctx.beginPath();
-    dctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-    dctx.fillStyle = hexA(dustColor, p.a * tw);
-    dctx.fill();
+    dctx.beginPath(); dctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    dctx.fillStyle = hexA(dustColor, p.a * tw); dctx.fill();
   }
 }
 function tickDust(t){
@@ -199,7 +233,6 @@ function hexA(hex, a){
   const n = parseInt(hex.slice(1), 16);
   return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a.toFixed(3)})`;
 }
-
 function setAtmosphere(color){
   atmo.style.setProperty('--sev-glow', color + '8c');
   atmo.style.setProperty('--sev', color);
@@ -209,7 +242,6 @@ function setAtmosphere(color){
     `linear-gradient(180deg, ${color} 0%, #0d0f14 62%)`;
   document.documentElement.style.setProperty('--sev', color);
 }
-
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -229,6 +261,27 @@ function countUp(el, target){
     el.textContent = Math.round(target * e);
     if (k < 1) requestAnimationFrame(step);
   })(t0);
+}
+function skeleton(){
+  return `<div class="loading" aria-busy="true" aria-label="Loading">` +
+    `<div class="sk" style="height:120px"></div>` +
+    `<div class="sk" style="height:34px; width:60%"></div>` +
+    `<div class="sk" style="height:60px"></div>` +
+    `<div class="sk" style="height:120px"></div></div>`;
+}
+function deltaChip(d){
+  const fc = d.forecast || [];
+  if (!fc.length || d.aqi < 0) return '';
+  const ref = fc[fc.length - 1].avg;
+  const diff = d.aqi - ref;
+  if (!diff) return '';
+  const arrow = diff > 0 ? '↑' : '↓';
+  const word = diff > 0 ? 'worse' : 'better';
+  return `<span class="chip rise" style="animation-delay:.2s">${arrow} ${Math.abs(diff)} vs yesterday — ${word}</span>`;
+}
+function domChip(d){
+  if (!d.dominant || !POL_NAMES[d.dominant]) return '';
+  return `<span class="chip rise" style="animation-delay:.24s"><span class="dot" style="background:${d.band.color}"></span>Driven by ${POL_NAMES[d.dominant]}</span>`;
 }
 function polRow(name, v, i){
   if (v == null) return '';
@@ -254,26 +307,50 @@ function sparkline(fc){
   }).join('');
   const base = fc[0].color;
   return `<div class="fc rise" style="animation-delay:.6s"><div class="pol-head">Next ${fc.length} days</div>` +
-    `<svg class="spark" viewBox="0 0 ${W} ${H}">` +
+    `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="AQI forecast trend">` +
     `<polygon points="${P},${H - P} ${pts} ${W - P},${H - P}" fill="${base}" class="spark-area"/>` +
     `<polyline points="${pts}" class="spark-line" stroke="${base}"/>${dots}</svg></div>`;
 }
 
-async function loadCity(city){
-  $('air-body').innerHTML = '<div class="loading">Reading the air…</div>';
+let currentKey = null;
+
+async function fetchAir(){
+  if (!currentKey) return null;
+  const url = currentKey.type === 'geo'
+    ? `/api/geo?lat=${currentKey.lat}&lng=${currentKey.lng}`
+    : '/api/aqi?city=' + encodeURIComponent(currentKey.name);
+  const r = await fetch(url);
+  const d = await r.json();
+  if (d.error || d.aqi < 0) throw new Error(d.error || 'no data');
+  return d;
+}
+function rememberCity(name){
   try {
-    const r = await fetch('/api/aqi?city=' + encodeURIComponent(city));
-    const d = await r.json();
-    if (d.error || d.aqi < 0) throw new Error(d.error || 'no data');
+    const rec = JSON.parse(localStorage.getItem('aqi-recent') || '[]');
+    const next = [name, ...rec.filter(x => x.toLowerCase() !== name.toLowerCase())].slice(0, 5);
+    localStorage.setItem('aqi-recent', JSON.stringify(next));
+  } catch (e) {}
+}
+function recentCities(){
+  try { return JSON.parse(localStorage.getItem('aqi-recent') || '[]'); }
+  catch (e) { return []; }
+}
+
+async function loadAir(){
+  $('air-body').innerHTML = skeleton();
+  $('loc-prompt').innerHTML = '';
+  try {
+    const d = await fetchAir();
     setAtmosphere(d.band.color);
     initDust(d.band.color, d.aqi);
-    const niceCity = (d.city.split('(')[0] || city).trim();
+    const niceCity = (d.city.split('(')[0] || '').trim() || 'Nearby';
     $('city').textContent = niceCity;
     $('upd').textContent = d.time ? 'Updated ' + timeAgo(d.time) : '';
     const pct = Math.min(100, (d.aqi / 500) * 100);
     $('air-body').innerHTML =
       `<div class="hero"><div class="aqi" id="aqi-num">0</div>` +
-      `<div><span class="band rise" style="animation-delay:.15s">${d.band.label}</span></div>` +
+      `<div class="chips"><span class="band rise" style="animation-delay:.15s">${d.band.label}</span>` +
+      deltaChip(d) + domChip(d) + `</div>` +
       `<div class="advice rise" style="animation-delay:.25s">${esc(d.advice.en)}</div>` +
       `<div class="advice-hi rise" style="animation-delay:.3s">${esc(d.advice.hi)}</div></div>` +
       `<div class="scale rise" style="animation-delay:.35s"><div class="scale-bar"><div class="scale-dot" id="sdot" style="left:0%"></div></div>` +
@@ -283,17 +360,47 @@ async function loadCity(city){
       polRow('NO₂', d.pollutants.no2, 2) + polRow('O₃', d.pollutants.o3, 3) + `</div>` +
       sparkline(d.forecast);
     countUp($('aqi-num'), d.aqi);
-    requestAnimationFrame(() => { $('sdot').style.left = pct + '%'; });
+    requestAnimationFrame(() => { const s = $('sdot'); if (s) s.style.left = pct + '%'; });
     document.querySelectorAll('.pol-fill').forEach((el, i) =>
       setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 420 + i * 90));
+    if (currentKey.type === 'city') rememberCity(currentKey.name);
   } catch (e) {
-    $('city').textContent = city;
     $('air-body').innerHTML = '<div class="err">Could not reach the air monitors right now.<br>Check your connection and try again.</div>';
   }
 }
 
+function showLocPrompt(){
+  try { if (localStorage.getItem('aqi-loc-asked')) return; } catch (e) {}
+  $('loc-prompt').innerHTML =
+    `<div class="loc-prompt rise" style="animation-delay:.5s"><p>See the air where <b>you</b> are, automatically.</p>` +
+    `<button id="loc-go">Use location</button></div>`;
+  $('loc-go').addEventListener('click', () => {
+    try { localStorage.setItem('aqi-loc-asked', '1'); } catch (e) {}
+    useGeolocation();
+  });
+}
+function useGeolocation(){
+  if (!navigator.geolocation){ loadCity('delhi'); return; }
+  $('air-body').innerHTML = skeleton();
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      currentKey = { type: 'geo', lat: pos.coords.latitude, lng: pos.coords.longitude };
+      try { localStorage.setItem('aqi-mode', 'geo'); } catch (e) {}
+      loadAir();
+    },
+    () => { currentKey = { type: 'city', name: 'delhi' }; loadAir(); showLocPrompt(); },
+    { timeout: 8000, maximumAge: 600000 }
+  );
+}
+function loadCity(name){
+  currentKey = { type: 'city', name };
+  try { localStorage.setItem('aqi-mode', 'city:' + name); } catch (e) {}
+  switchView('v-air');
+  loadAir();
+}
+
 async function loadRank(){
-  $('rank-body').innerHTML = '<div class="loading">Ranking cities…</div>';
+  $('rank-body').innerHTML = `<div class="loading">` + `<div class="sk" style="height:64px"></div>`.repeat(4) + `</div>`;
   try {
     const r = await fetch('/api/leaderboard');
     const d = await r.json();
@@ -301,15 +408,28 @@ async function loadRank(){
     $('rank-upd').textContent = d.updated ? 'Updated ' + timeAgo(d.updated) : '';
     const max = Math.max(1, ...d.rows.map(x => x.aqi));
     $('rank-body').innerHTML = d.rows.map((row, i) =>
-      `<div class="rank-row rise" style="animation-delay:${i * 0.05}s">` +
+      `<div class="rank-row rise" style="animation-delay:${i * 0.05}s" data-city="${esc(row.city)}">` +
       `<div class="rank-wash" style="background:linear-gradient(90deg, ${row.color}30, transparent ${(row.aqi / max * 100).toFixed(0)}%)"></div>` +
       `<div class="rank-n">${i + 1}</div><div class="rank-city">${esc(row.city)}</div>` +
       `<div class="rank-dot" style="background:${row.color}"></div>` +
       `<div class="rank-aqi">${row.aqi}</div></div>`
     ).join('') || '<div class="err">No cities reporting right now.</div>';
+    document.querySelectorAll('.rank-row').forEach(el =>
+      el.addEventListener('click', () => loadCity(el.dataset.city)));
   } catch (e) {
     $('rank-body').innerHTML = '<div class="err">Could not load the ranking right now.</div>';
   }
+}
+
+function renderQuick(){
+  const rec = recentCities();
+  $('quick').innerHTML =
+    `<div class="qlabel">Popular</div><div class="quick">` +
+    QUICK_CITIES.map(c => `<button data-c="${c}">${c}</button>`).join('') + `</div>` +
+    (rec.length ? `<div class="qlabel">Recent</div><div class="quick">` +
+      rec.map(c => `<button data-c="${esc(c)}">${esc(c)}</button>`).join('') + `</div>` : '');
+  document.querySelectorAll('#quick button').forEach(b =>
+    b.addEventListener('click', () => loadCity(b.dataset.c)));
 }
 
 let searchTimer = null;
@@ -326,7 +446,6 @@ $('q').addEventListener('input', (e) => {
         (s.aqi > 0 ? `<small>${s.aqi}</small>` : '') + `</div>`
       ).join('') || '<div class="sub" style="padding:14px 4px">No stations found.</div>';
       document.querySelectorAll('.sug').forEach(el => el.addEventListener('click', () => {
-        switchView('v-air');
         loadCity(el.dataset.name.split('(')[0].trim());
       }));
     } catch (e) { /* quiet */ }
@@ -337,10 +456,34 @@ function switchView(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.v === id));
   if (id === 'v-rank') loadRank();
+  if (id === 'v-search') renderQuick();
 }
 document.querySelectorAll('.nav button').forEach(b =>
   b.addEventListener('click', () => switchView(b.dataset.v)));
+$('refresh').addEventListener('click', () => loadAir());
+$('locate').addEventListener('click', () => {
+  try { localStorage.setItem('aqi-loc-asked', '1'); } catch (e) {}
+  useGeolocation();
+});
 
-loadCity('delhi');
+(function boot(){
+  let mode = null;
+  try { mode = localStorage.getItem('aqi-mode'); } catch (e) {}
+  if (mode === 'geo' && navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      (pos) => { currentKey = { type: 'geo', lat: pos.coords.latitude, lng: pos.coords.longitude }; loadAir(); },
+      () => { currentKey = { type: 'city', name: 'delhi' }; loadAir(); showLocPrompt(); },
+      { timeout: 8000, maximumAge: 600000 }
+    );
+  } else if (mode && mode.startsWith('city:')){
+    currentKey = { type: 'city', name: mode.slice(5) };
+    loadAir();
+  } else {
+    currentKey = { type: 'city', name: 'delhi' };
+    loadAir();
+    setTimeout(showLocPrompt, 1200);
+  }
+  renderQuick();
+})();
 </script>
 </body></html>
