@@ -36,7 +36,6 @@
     display:flex; align-items:center; justify-content:center; transition:transform .2s ease; }
   .iconbtn:active{ transform:scale(.92) rotate(-40deg); }
   .top-right{ display:flex; align-items:center; gap:8px; }
-  /* hero */
   .hero{ margin-top:26px; }
   .aqi{ font-size:clamp(100px,32vw,160px); font-weight:900; line-height:.92; letter-spacing:-.05em;
     font-stretch:125%; font-variant-numeric:tabular-nums; animation:breathe 5s ease-in-out infinite; }
@@ -57,7 +56,6 @@
   .advice-hi{ font-size:15px; color:var(--muted); margin-top:8px; }
   .rise{ opacity:0; transform:translateY(14px); animation:rise .7s cubic-bezier(.2,.7,.2,1) forwards; }
   @keyframes rise{ to{ opacity:1; transform:none; } }
-  /* severity ruler */
   .scale{ margin-top:22px; }
   .scale-bar{ height:10px; border-radius:99px; position:relative;
     background:linear-gradient(90deg,#00e400 0 16.6%,#e6e600 16.6% 33.3%,#ff7e00 33.3% 50%,#f00 50% 66.6%,#8f3f97 66.6% 83.3%,#7e0023 83.3%); }
@@ -66,21 +64,26 @@
     transition:left 1s cubic-bezier(.2,.7,.2,1); }
   .scale-labels{ display:flex; justify-content:space-between; margin-top:8px; font-size:11px; color:var(--muted);
     font-variant-numeric:tabular-nums; }
-  /* pollutants */
   .pol{ margin-top:24px; }
   .pol-head{ font-size:13px; font-weight:700; color:var(--muted); margin-bottom:4px; letter-spacing:.02em; }
-  .pol-row{ display:flex; align-items:center; gap:12px; padding:11px 0; border-top:1px solid rgba(255,255,255,.08); }
+  .pol-row{ padding:11px 0; border-top:1px solid rgba(255,255,255,.08); cursor:pointer; }
   .pol-row:last-child{ border-bottom:1px solid rgba(255,255,255,.08); }
+  .pol-main{ display:flex; align-items:center; gap:12px; }
   .pol-name{ width:64px; font-size:13px; font-weight:700; color:var(--muted); }
   .pol-track{ flex:1; height:6px; border-radius:99px; background:rgba(255,255,255,.1); overflow:hidden; }
   .pol-fill{ height:100%; border-radius:99px; width:0; transition:width 1.1s cubic-bezier(.2,.7,.2,1); }
   .pol-val{ width:48px; text-align:right; font-size:14px; font-weight:700; font-variant-numeric:tabular-nums; }
-  /* forecast sparkline */
+  .pol-hint{ font-size:12px; color:var(--muted); max-height:0; overflow:hidden; transition:max-height .3s ease, margin .3s ease; line-height:1.5; }
+  .pol-row.open .pol-hint{ max-height:60px; margin-top:8px; }
+  .pol-row .chev{ font-size:11px; color:var(--muted); transition:transform .3s ease; }
+  .pol-row.open .chev{ transform:rotate(180deg); }
   .fc{ margin-top:24px; padding-bottom:8px; }
   .spark{ width:100%; height:auto; display:block; }
   .spark-line{ fill:none; stroke-width:2.5; stroke-linecap:round; }
   .spark-area{ opacity:.18; }
-  /* ranked */
+  .bestday{ margin-top:14px; display:flex; align-items:center; gap:10px; padding:13px 16px; border-radius:14px;
+    background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); font-size:14px; font-weight:600; }
+  .bestday .bd-dot{ width:10px; height:10px; border-radius:50%; flex:none; }
   h2.stitle{ font-size:26px; font-weight:800; letter-spacing:-.02em; margin-top:8px; font-stretch:112%; }
   .sub{ font-size:14px; color:var(--muted); margin-top:6px; }
   .rank-row{ position:relative; display:flex; align-items:center; gap:14px; padding:15px 12px;
@@ -94,7 +97,6 @@
   .rank-city{ flex:1; font-size:17px; font-weight:600; text-transform:capitalize; position:relative; }
   .rank-aqi{ font-size:22px; font-weight:800; font-variant-numeric:tabular-nums; position:relative; }
   .rank-dot{ width:12px; height:12px; border-radius:50%; position:relative; }
-  /* search */
   .searchbox{ width:100%; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.12);
     border-radius:14px; padding:14px 16px; font-size:16px; color:#fff; font-family:inherit; margin-top:18px; outline:none; }
   .searchbox::placeholder{ color:var(--muted); }
@@ -108,19 +110,46 @@
     transition:transform .15s ease; }
   .quick button:active{ transform:scale(.94); }
   .qlabel{ font-size:13px; font-weight:700; color:var(--muted); margin-top:20px; letter-spacing:.02em; }
-  /* skeletons */
+  /* compare */
+  .cmp-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px; }
+  .cmp-card{ position:relative; border-radius:18px; padding:18px 14px 16px; overflow:hidden; cursor:pointer;
+    border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.04); transition:transform .15s ease; }
+  .cmp-card:active{ transform:scale(.97); }
+  .cmp-wash{ position:absolute; inset:0; pointer-events:none; }
+  .cmp-city{ font-size:15px; font-weight:700; text-transform:capitalize; position:relative; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cmp-aqi{ font-size:44px; font-weight:900; letter-spacing:-.04em; font-variant-numeric:tabular-nums; position:relative; margin-top:6px; font-stretch:125%; }
+  .cmp-band{ font-size:12px; font-weight:700; position:relative; margin-top:2px; }
+  .cmp-x{ position:absolute; top:8px; right:10px; background:none; border:none; color:var(--muted);
+    font-size:16px; cursor:pointer; z-index:2; padding:4px; }
+  .cmp-add{ border:1.5px dashed rgba(255,255,255,.2); border-radius:18px; min-height:130px; display:flex;
+    flex-direction:column; align-items:center; justify-content:center; gap:6px; color:var(--muted);
+    font-size:14px; font-weight:600; cursor:pointer; background:transparent; font-family:inherit; }
+  .cmp-add span.big{ font-size:28px; }
+  .cmp-empty{ text-align:center; padding:50px 24px; color:var(--muted); font-size:15px; line-height:1.6; }
+  /* share modal */
+  .modal{ position:fixed; inset:0; z-index:10; display:none; align-items:center; justify-content:center; padding:24px;
+    background:rgba(5,6,9,.8); backdrop-filter:blur(8px); }
+  .modal.on{ display:flex; animation:vin .25s ease; }
+  .sheet{ width:100%; max-width:360px; background:#15181f; border:1px solid rgba(255,255,255,.12);
+    border-radius:20px; padding:20px; }
+  .sheet h3{ font-size:18px; font-weight:800; margin-bottom:4px; }
+  .sheet .sub{ margin-bottom:14px; }
+  #share-canvas{ width:100%; border-radius:12px; display:block; }
+  .sheet-btns{ display:flex; gap:10px; margin-top:14px; }
+  .btn-p{ flex:1; background:#fff; color:#0d0f14; border:none; font-family:inherit; font-weight:800;
+    font-size:15px; padding:13px; border-radius:12px; cursor:pointer; }
+  .btn-s{ flex:1; background:rgba(255,255,255,.08); color:#fff; border:1px solid rgba(255,255,255,.14);
+    font-family:inherit; font-weight:700; font-size:15px; padding:13px; border-radius:12px; cursor:pointer; }
   .sk{ border-radius:12px; background:linear-gradient(100deg, rgba(255,255,255,.05) 40%, rgba(255,255,255,.11) 50%, rgba(255,255,255,.05) 60%);
     background-size:200% 100%; animation:shimmer 1.3s linear infinite; }
   @keyframes shimmer{ to{ background-position:-200% 0; } }
-  /* view transitions */
   .view{ display:none; }
   .view.on{ display:block; animation:vin .32s cubic-bezier(.2,.7,.2,1); }
   @keyframes vin{ from{ opacity:0; transform:translateX(26px); } to{ opacity:1; transform:none; } }
-  /* nav */
   .nav{ margin-top:auto; display:flex; justify-content:space-around; padding:16px 0 4px;
     border-top:1px solid rgba(255,255,255,.08); }
-  .nav button{ background:none; border:none; color:var(--muted); font-size:14px; font-weight:600;
-    font-family:inherit; cursor:pointer; padding:6px 12px; transition:color .2s ease, transform .15s ease; }
+  .nav button{ background:none; border:none; color:var(--muted); font-size:13px; font-weight:600;
+    font-family:inherit; cursor:pointer; padding:6px 8px; transition:color .2s ease, transform .15s ease; }
   .nav button.on{ color:#fff; }
   .nav button:active{ transform:scale(.93); }
   .src{ text-align:center; font-size:10px; color:rgba(255,255,255,.3); margin-top:10px; }
@@ -132,7 +161,7 @@
   .loc-prompt button{ background:#fff; color:#0d0f14; border:none; font-family:inherit; font-weight:700;
     font-size:14px; padding:10px 16px; border-radius:99px; cursor:pointer; flex:none; }
   @media (prefers-reduced-motion: reduce){
-    .aqi{ animation:none; } .rise,.view.on{ animation-duration:.01s; }
+    .aqi{ animation:none; } .rise,.view.on,.modal.on{ animation-duration:.01s; }
     .pol-fill,.scale-dot{ transition:none; } .sk{ animation-duration:2.5s; }
   }
 </style>
@@ -148,6 +177,7 @@
       <div class="place" id="city">…</div>
       <div class="top-right">
         <div class="time" id="upd"></div>
+        <button class="iconbtn" id="share-btn" aria-label="Share" title="Share">⤴</button>
         <button class="iconbtn" id="refresh" aria-label="Refresh" title="Refresh">↻</button>
         <button class="iconbtn" id="locate" aria-label="Use my location" title="Use my location">◎</button>
       </div>
@@ -162,6 +192,12 @@
     <div id="rank-body" style="margin-top:12px"></div>
   </div>
 
+  <div class="view" id="v-cmp">
+    <h2 class="stitle">Compare cities</h2>
+    <div class="sub">Pin the places you care about, see them side by side.</div>
+    <div class="cmp-grid" id="cmp-body" style="margin-top:16px"></div>
+  </div>
+
   <div class="view" id="v-search">
     <h2 class="stitle">Find your city</h2>
     <input class="searchbox" id="q" placeholder="Type a city name…" autocomplete="off" aria-label="Search city">
@@ -172,10 +208,24 @@
   <div class="nav">
     <button class="on" data-v="v-air">Air</button>
     <button data-v="v-rank">Ranked</button>
+    <button data-v="v-cmp">Compare</button>
     <button data-v="v-search">Search</button>
   </div>
   <div class="src">Data: World Air Quality Index · aqicn.org</div>
 </div></div>
+
+<div class="modal" id="share-modal" role="dialog" aria-label="Share air quality">
+  <div class="sheet">
+    <h3>Share this air</h3>
+    <div class="sub">A card for WhatsApp, Stories, anywhere.</div>
+    <canvas id="share-canvas" width="1080" height="1350"></canvas>
+    <div class="sheet-btns">
+      <button class="btn-p" id="share-go">Share</button>
+      <button class="btn-s" id="share-dl">Save</button>
+      <button class="btn-s" id="share-x">Close</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
@@ -186,6 +236,12 @@ let particles = [], dustColor = '#8f3f97', dustRAF = null;
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const QUICK_CITIES = ['Delhi', 'Mumbai', 'Kolkata', 'Chennai', 'Bengaluru', 'Hyderabad'];
 const POL_NAMES = { pm25: 'PM2.5', pm10: 'PM10', no2: 'NO₂', o3: 'O₃', so2: 'SO₂', co: 'CO' };
+const POL_INFO = {
+  pm25: 'PM2.5 — dust so fine it slips deep into your lungs. Comes from vehicles, smoke and burning.',
+  pm10: 'PM10 — coarser dust from roads and construction. Irritates eyes, nose and throat.',
+  no2: 'NO₂ — traffic exhaust gas. Triggers asthma and makes breathing harder.',
+  o3: 'O₃ — ground-level ozone, cooked up by sunlight and pollution. Stings the lungs on hot afternoons.'
+};
 
 function sizeDust(){
   dust.width = innerWidth * devicePixelRatio;
@@ -283,13 +339,23 @@ function domChip(d){
   if (!d.dominant || !POL_NAMES[d.dominant]) return '';
   return `<span class="chip rise" style="animation-delay:.24s"><span class="dot" style="background:${d.band.color}"></span>Driven by ${POL_NAMES[d.dominant]}</span>`;
 }
-function polRow(name, v, i){
+function bestDay(fc){
+  if (!fc || fc.length < 2) return '';
+  let best = fc[0];
+  for (const f of fc) if (f.avg < best.avg) best = f;
+  const day = new Date(best.day + 'T12:00:00').toLocaleDateString('en', { weekday: 'long' });
+  return `<div class="bestday rise" style="animation-delay:.65s"><span class="bd-dot" style="background:${best.color}"></span>` +
+    `Cleanest air ahead: <b>&nbsp;${day} (${best.avg} AQI)</b></div>`;
+}
+function polRow(key, v, i){
   if (v == null) return '';
   const pct = Math.min(100, (v / 300) * 100);
   const c = v <= 50 ? '#00e400' : v <= 100 ? '#e6e600' : v <= 200 ? '#ff7e00' : v <= 300 ? '#ff0000' : v <= 400 ? '#8f3f97' : '#7e0023';
-  return `<div class="pol-row rise" style="animation-delay:${0.35 + i * 0.08}s"><div class="pol-name">${name}</div>` +
+  return `<div class="pol-row rise" style="animation-delay:${0.35 + i * 0.08}s" data-pol="${key}">` +
+    `<div class="pol-main"><div class="pol-name">${POL_NAMES[key]}</div>` +
     `<div class="pol-track"><div class="pol-fill" data-w="${pct}" style="background:${c}"></div></div>` +
-    `<div class="pol-val">${v}</div></div>`;
+    `<div class="pol-val">${v}</div><div class="chev">▾</div></div>` +
+    `<div class="pol-hint">${POL_INFO[key] || ''}</div></div>`;
 }
 function sparkline(fc){
   if (!fc || fc.length < 2) return '';
@@ -313,6 +379,7 @@ function sparkline(fc){
 }
 
 let currentKey = null;
+let currentData = null;
 
 async function fetchAir(){
   if (!currentKey) return null;
@@ -335,18 +402,38 @@ function recentCities(){
   try { return JSON.parse(localStorage.getItem('aqi-recent') || '[]'); }
   catch (e) { return []; }
 }
+function pinnedCities(){
+  try { return JSON.parse(localStorage.getItem('aqi-compare') || '[]'); }
+  catch (e) { return []; }
+}
+function pinCity(name){
+  const pins = pinnedCities();
+  if (pins.some(p => p.toLowerCase() === name.toLowerCase())) return;
+  pins.push(name);
+  try { localStorage.setItem('aqi-compare', JSON.stringify(pins.slice(0, 4))); } catch (e) {}
+}
+function unpinCity(name){
+  try {
+    localStorage.setItem('aqi-compare',
+      JSON.stringify(pinnedCities().filter(p => p.toLowerCase() !== name.toLowerCase())));
+  } catch (e) {}
+}
 
 async function loadAir(){
   $('air-body').innerHTML = skeleton();
   $('loc-prompt').innerHTML = '';
   try {
     const d = await fetchAir();
+    currentData = d;
     setAtmosphere(d.band.color);
     initDust(d.band.color, d.aqi);
     const niceCity = (d.city.split('(')[0] || '').trim() || 'Nearby';
     $('city').textContent = niceCity;
     $('upd').textContent = d.time ? 'Updated ' + timeAgo(d.time) : '';
     const pct = Math.min(100, (d.aqi / 500) * 100);
+    const pinned = pinnedCities();
+    const isPinned = currentKey.type === 'city' &&
+      pinned.some(p => p.toLowerCase() === currentKey.name.toLowerCase());
     $('air-body').innerHTML =
       `<div class="hero"><div class="aqi" id="aqi-num">0</div>` +
       `<div class="chips"><span class="band rise" style="animation-delay:.15s">${d.band.label}</span>` +
@@ -355,14 +442,24 @@ async function loadAir(){
       `<div class="advice-hi rise" style="animation-delay:.3s">${esc(d.advice.hi)}</div></div>` +
       `<div class="scale rise" style="animation-delay:.35s"><div class="scale-bar"><div class="scale-dot" id="sdot" style="left:0%"></div></div>` +
       `<div class="scale-labels"><span>0</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span></div></div>` +
-      `<div class="pol"><div class="pol-head rise" style="animation-delay:.3s">What's in it</div>` +
-      polRow('PM2.5', d.pollutants.pm25, 0) + polRow('PM10', d.pollutants.pm10, 1) +
-      polRow('NO₂', d.pollutants.no2, 2) + polRow('O₃', d.pollutants.o3, 3) + `</div>` +
-      sparkline(d.forecast);
+      `<div class="pol"><div class="pol-head rise" style="animation-delay:.3s">What's in it — tap a row</div>` +
+      polRow('pm25', d.pollutants.pm25, 0) + polRow('pm10', d.pollutants.pm10, 1) +
+      polRow('no2', d.pollutants.no2, 2) + polRow('o3', d.pollutants.o3, 3) + `</div>` +
+      sparkline(d.forecast) + bestDay(d.forecast) +
+      (currentKey.type === 'city' && !isPinned ?
+        `<button class="btn-s rise" id="pin-btn" style="width:100%; margin-top:16px; animation-delay:.7s">＋ Pin ${esc(niceCity)} to compare</button>` : '');
     countUp($('aqi-num'), d.aqi);
     requestAnimationFrame(() => { const s = $('sdot'); if (s) s.style.left = pct + '%'; });
     document.querySelectorAll('.pol-fill').forEach((el, i) =>
       setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 420 + i * 90));
+    document.querySelectorAll('.pol-row').forEach(el =>
+      el.addEventListener('click', () => el.classList.toggle('open')));
+    const pinBtn = $('pin-btn');
+    if (pinBtn) pinBtn.addEventListener('click', () => {
+      pinCity(currentKey.name);
+      pinBtn.textContent = '✓ Pinned — see Compare tab';
+      setTimeout(() => switchView('v-cmp'), 600);
+    });
     if (currentKey.type === 'city') rememberCity(currentKey.name);
   } catch (e) {
     $('air-body').innerHTML = '<div class="err">Could not reach the air monitors right now.<br>Check your connection and try again.</div>';
@@ -421,6 +518,46 @@ async function loadRank(){
   }
 }
 
+async function loadCompare(){
+  const pins = pinnedCities();
+  const body = $('cmp-body');
+  if (!pins.length){
+    body.innerHTML = `<div class="cmp-empty" style="grid-column:1/-1">No pinned cities yet.<br>Open any city and tap <b>＋ Pin to compare</b>,<br>or pin from search results.</div>`;
+    return;
+  }
+  body.innerHTML = pins.map(p =>
+    `<div class="cmp-card"><div class="sk" style="height:110px"></div></div>`
+  ).join('');
+  const results = await Promise.allSettled(pins.map(async (p) => {
+    const r = await fetch('/api/aqi?city=' + encodeURIComponent(p));
+    const d = await r.json();
+    if (d.error || d.aqi < 0) throw new Error();
+    return d;
+  }));
+  body.innerHTML = results.map((res, i) => {
+    const p = pins[i];
+    if (res.status !== 'fulfilled'){
+      return `<div class="cmp-card"><button class="cmp-x" data-x="${esc(p)}">×</button>` +
+        `<div class="cmp-city">${esc(p)}</div><div class="sub">No data</div></div>`;
+    }
+    const d = res.value;
+    const nice = (d.city.split('(')[0] || p).trim();
+    return `<div class="cmp-card" data-city="${esc(p)}">` +
+      `<button class="cmp-x" data-x="${esc(p)}" aria-label="Remove">×</button>` +
+      `<div class="cmp-wash" style="background:radial-gradient(120% 90% at 50% 0%, ${d.band.color}55, transparent 70%)"></div>` +
+      `<div class="cmp-city">${esc(nice)}</div>` +
+      `<div class="cmp-aqi" style="color:${d.band.color === '#e6e600' ? '#f2f4f7' : '#fff'}">${d.aqi}</div>` +
+      `<div class="cmp-band" style="color:${d.band.color}">${d.band.label}</div></div>`;
+  }).join('');
+  body.querySelectorAll('.cmp-x').forEach(x => x.addEventListener('click', (e) => {
+    e.stopPropagation();
+    unpinCity(x.dataset.x);
+    loadCompare();
+  }));
+  body.querySelectorAll('.cmp-card[data-city]').forEach(c =>
+    c.addEventListener('click', () => loadCity(c.dataset.city)));
+}
+
 function renderQuick(){
   const rec = recentCities();
   $('quick').innerHTML =
@@ -452,10 +589,93 @@ $('q').addEventListener('input', (e) => {
   }, 350);
 });
 
+/* share card */
+function drawShareCard(d){
+  const cv = $('share-canvas');
+  const c = cv.getContext('2d');
+  const W = 1080, H = 1350;
+  c.fillStyle = '#0d0f14';
+  c.fillRect(0, 0, W, H);
+  const g = c.createRadialGradient(W/2, -80, 60, W/2, -80, 620);
+  g.addColorStop(0, d.band.color + 'cc');
+  g.addColorStop(1, 'rgba(13,15,20,0)');
+  c.fillStyle = g;
+  c.fillRect(0, 0, W, H);
+  c.textAlign = 'center';
+  c.fillStyle = '#9aa3b2';
+  c.font = '700 44px Archivo, sans-serif';
+  c.fillText('AIR QUALITY RIGHT NOW', W/2, 130);
+  const niceCity = (d.city.split('(')[0] || '').trim() || 'Nearby';
+  c.fillStyle = '#f2f4f7';
+  c.font = '800 72px Archivo, sans-serif';
+  c.fillText(niceCity.toUpperCase().slice(0, 22), W/2, 220);
+  c.fillStyle = '#ffffff';
+  c.font = '900 340px Archivo, sans-serif';
+  c.fillText(String(d.aqi), W/2, 620);
+  c.fillStyle = d.band.color;
+  const label = d.band.label.toUpperCase();
+  c.font = '800 64px Archivo, sans-serif';
+  const lw = c.measureText(label).width + 90;
+  c.beginPath();
+  c.roundRect(W/2 - lw/2, 690, lw, 110, 55);
+  c.fill();
+  c.fillStyle = '#0d0f14';
+  c.fillText(label, W/2, 768);
+  c.fillStyle = '#d7dce4';
+  c.font = '600 40px Archivo, sans-serif';
+  const words = d.advice.en.split(' ');
+  let line = '', y = 900;
+  for (const w of words){
+    if (c.measureText(line + ' ' + w).width > 900){ c.fillText(line.trim(), W/2, y); line = w + ' '; y += 56; }
+    else line += w + ' ';
+  }
+  c.fillText(line.trim(), W/2, y);
+  const date = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  c.fillStyle = '#9aa3b2';
+  c.font = '600 36px Archivo, sans-serif';
+  c.fillText(date + '  ·  aqi-alarm.vercel.app', W/2, H - 90);
+  return new Promise((res) => cv.toBlob(res, 'image/png'));
+}
+$('share-btn').addEventListener('click', async () => {
+  if (!currentData) return;
+  $('share-modal').classList.add('on');
+  await document.fonts.ready;
+  drawShareCard(currentData);
+});
+$('share-x').addEventListener('click', () => $('share-modal').classList.remove('on'));
+$('share-modal').addEventListener('click', (e) => {
+  if (e.target.id === 'share-modal') $('share-modal').classList.remove('on');
+});
+async function shareFile(){
+  if (!currentData) return;
+  const blob = await drawShareCard(currentData);
+  const file = new File([blob], 'aqi-card.png', { type: 'image/png' });
+  if (navigator.canShare && navigator.canShare({ files: [file] })){
+    try { await navigator.share({ files: [file], title: 'Air quality' }); } catch (e) {}
+  } else {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'aqi-card.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+}
+$('share-go').addEventListener('click', shareFile);
+$('share-dl').addEventListener('click', async () => {
+  if (!currentData) return;
+  const blob = await drawShareCard(currentData);
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'aqi-card.png';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+});
+
 function switchView(id){
   document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.id === id));
   document.querySelectorAll('.nav button').forEach(b => b.classList.toggle('on', b.dataset.v === id));
   if (id === 'v-rank') loadRank();
+  if (id === 'v-cmp') loadCompare();
   if (id === 'v-search') renderQuick();
 }
 document.querySelectorAll('.nav button').forEach(b =>
