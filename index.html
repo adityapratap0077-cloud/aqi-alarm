@@ -401,11 +401,11 @@ function deltaChip(d){
   if (!diff) return '';
   const arrow = diff > 0 ? '↑' : '↓';
   const word = diff > 0 ? 'worse' : 'better';
-  return `<span class="chip rise" style="animation-delay:.2s">${arrow} ${Math.abs(diff)} vs yesterday — ${word}</span>`;
+  return `<span class="chip">${arrow} ${Math.abs(diff)} vs yesterday — ${word}</span>`;
 }
 function domChip(d){
   if (!d.dominant || !POL_NAMES[d.dominant]) return '';
-  return `<span class="chip rise" style="animation-delay:.24s"><span class="dot" style="background:${d.band.color}"></span>Driven by ${POL_NAMES[d.dominant]}</span>`;
+  return `<span class="chip"><span class="dot" style="background:${d.band.color}"></span>Driven by ${POL_NAMES[d.dominant]}</span>`;
 }
 function verdicts(aqi){
   const V = [];
@@ -425,25 +425,25 @@ function verdicts(aqi){
 function verdictHTML(d){
   if (d.aqi < 0) return '';
   const rows = verdicts(d.aqi).map((v, i) =>
-    `<div class="verdict rise" style="animation-delay:${0.28 + i * 0.07}s">` +
+    `<div class="verdict">` +
     `<span class="vpill" style="background:${v.c}">${v.s}</span>` +
     `<div class="vtext"><b>${v.t}</b><span>${v.r}</span></div></div>`
   ).join('');
-  return `<div class="vhead rise" style="animation-delay:.24s">Should you go out?</div>${rows}`;
+  return `<div class="vhead">Should you go out?</div>${rows}`;
 }
 function bestDay(fc){
   if (!fc || fc.length < 2) return '';
   let best = fc[0];
   for (const f of fc) if (f.avg < best.avg) best = f;
   const day = new Date(best.day + 'T12:00:00').toLocaleDateString('en', { weekday: 'long' });
-  return `<div class="bestday rise" style="animation-delay:.65s"><span class="bd-dot" style="background:${best.color}"></span>` +
+  return `<div class="bestday"><span class="bd-dot" style="background:${best.color}"></span>` +
     `Cleanest air ahead: <b>&nbsp;${day} (${best.avg} AQI)</b></div>`;
 }
 function polRow(key, v, i){
   if (v == null) return '';
   const pct = Math.min(100, (v / 300) * 100);
   const c = v <= 50 ? '#00e400' : v <= 100 ? '#e6e600' : v <= 200 ? '#ff7e00' : v <= 300 ? '#ff0000' : v <= 400 ? '#8f3f97' : '#7e0023';
-  return `<div class="pol-row rise" style="animation-delay:${0.35 + i * 0.08}s" data-pol="${key}">` +
+  return `<div class="pol-row" data-pol="${key}">` +
     `<div class="pol-main"><div class="pol-name">${POL_NAMES[key]}</div>` +
     `<div class="pol-track"><div class="pol-fill" data-w="${pct}" style="background:${c}"></div></div>` +
     `<div class="pol-val">${v}</div><div class="chev" aria-hidden="true"><svg class="ic"><use href="#i-chev"/></svg></div></div>` +
@@ -464,7 +464,7 @@ function sparkline(fc){
       `<text x="${X(i).toFixed(1)}" y="${(Y(f.avg) - 10).toFixed(1)}" text-anchor="middle" font-size="11" fill="#f2f4f7" font-weight="700">${f.avg}</text>`;
   }).join('');
   const base = fc[0].color;
-  return `<div class="fc rise" style="animation-delay:.6s"><div class="pol-head">Next ${fc.length} days</div>` +
+  return `<div class="fc"><div class="pol-head">Next ${fc.length} days</div>` +
     `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="AQI forecast trend">` +
     `<polygon points="${P},${H - P} ${pts} ${W - P},${H - P}" fill="${base}" class="spark-area"/>` +
     `<polyline points="${pts}" class="spark-line" stroke="${base}"/>${dots}</svg></div>`;
@@ -524,7 +524,7 @@ async function loadAir(){
     $('city').textContent = niceCity;
     $('upd').textContent = d.time ? 'Updated ' + timeAgo(d.time) : '';
     $('sky-chips').innerHTML =
-      `<span class="band rise" style="animation-delay:.15s">${d.band.label}</span>` +
+      `<span class="band">${d.band.label}</span>` +
       deltaChip(d) + domChip(d);
     countUp($('aqi-num'), d.aqi);
     const pct = Math.min(100, (d.aqi / 500) * 100);
@@ -534,16 +534,18 @@ async function loadAir(){
     $('sheet-body').innerHTML =
       `<div class="grab"></div>` +
       verdictHTML(d) +
-      `<div class="advice rise" style="animation-delay:.5s; margin-top:20px">${esc(d.advice.en)}</div>` +
-      `<div class="advice-hi rise" style="animation-delay:.53s">${esc(d.advice.hi)}</div>` +
-      `<div class="scale rise" style="animation-delay:.35s"><div class="scale-bar"><div class="scale-dot" id="sdot" style="left:0%"></div></div>` +
+      `<div class="advice" style="margin-top:20px">${esc(d.advice.en)}</div>` +
+      `<div class="advice-hi">${esc(d.advice.hi)}</div>` +
+      `<div class="scale"><div class="scale-bar"><div class="scale-dot" id="sdot" style="left:0%"></div></div>` +
       `<div class="scale-labels"><span>0</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span></div></div>` +
-      `<div class="pol"><div class="pol-head rise" style="animation-delay:.3s">What's in it — tap a row</div>` +
+      `<div class="pol"><div class="pol-head">What's in it — tap a row</div>` +
       polRow('pm25', d.pollutants.pm25, 0) + polRow('pm10', d.pollutants.pm10, 1) +
       polRow('no2', d.pollutants.no2, 2) + polRow('o3', d.pollutants.o3, 3) + `</div>` +
       sparkline(d.forecast) + bestDay(d.forecast) +
       (currentKey.type === 'city' && !isPinned ?
-        `<button class="pinbtn rise" id="pin-btn" style="animation-delay:.7s"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Pin ${esc(niceCity)} to compare</button>` : '');
+        `<button class="pinbtn" id="pin-btn"><svg class="ic" aria-hidden="true"><use href="#i-plus"/></svg> Pin ${esc(niceCity)} to compare</button>` : '');
+    const sheetEl = $('sheet-body');
+    sheetEl.classList.remove('rise'); void sheetEl.offsetWidth; sheetEl.classList.add('rise');
     requestAnimationFrame(() => { const s = $('sdot'); if (s) s.style.left = pct + '%'; });
     document.querySelectorAll('.pol-fill').forEach((el, i) =>
       setTimeout(() => { el.style.width = el.dataset.w + '%'; }, 420 + i * 90));
@@ -564,7 +566,7 @@ async function loadAir(){
 function showLocPrompt(){
   try { if (localStorage.getItem('aqi-loc-asked')) return; } catch (e) {}
   $('loc-prompt').innerHTML =
-    `<div class="loc-prompt rise" style="animation-delay:.5s"><p>See the air where <b>you</b> are, automatically.</p>` +
+    `<div class="loc-prompt"><p>See the air where <b>you</b> are, automatically.</p>` +
     `<button id="loc-go">Use location</button></div>`;
   $('loc-go').addEventListener('click', () => {
     try { localStorage.setItem('aqi-loc-asked', '1'); } catch (e) {}
@@ -600,7 +602,7 @@ async function loadRank(){
     $('rank-upd').textContent = d.updated ? 'Updated ' + timeAgo(d.updated) : '';
     const max = Math.max(1, ...d.rows.map(x => x.aqi));
     $('rank-body').innerHTML = d.rows.map((row, i) =>
-      `<div class="rank-row rise" style="animation-delay:${i * 0.05}s" data-city="${esc(row.city)}">` +
+      `<div class="rank-row" data-city="${esc(row.city)}">` +
       `<div class="rank-wash" style="background:linear-gradient(90deg, ${row.color}30, transparent ${(row.aqi / max * 100).toFixed(0)}%)"></div>` +
       `<div class="rank-n">${i + 1}</div><div class="rank-city">${esc(row.city)}</div>` +
       `<div class="rank-dot" style="background:${row.color}"></div>` +
