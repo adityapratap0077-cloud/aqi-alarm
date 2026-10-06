@@ -20,8 +20,6 @@
   html,body{ height:100%; }
   body{ background:var(--ink); color:var(--paper); font-family:'Archivo',system-ui,sans-serif; overflow-x:hidden; }
   #dust{ position:fixed; inset:0; z-index:50; pointer-events:none; }
-  .grain{ position:fixed; inset:0; z-index:60; pointer-events:none; opacity:.05; mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E"); }
   .wrap{ max-width:480px; margin:0 auto; min-height:100%; position:relative; }
   .screen{ position:relative; min-height:100dvh; display:flex; flex-direction:column; }
 
@@ -214,7 +212,6 @@
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
 </defs></svg>
 <canvas id="dust"></canvas>
-<div class="grain"></div>
 <div class="wrap"><div class="screen">
 
   <div class="view on" id="v-air">
