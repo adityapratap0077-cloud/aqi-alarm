@@ -1,0 +1,8 @@
+# AQI Alarm
+
+> Live air quality for Indian cities, in plain language.
+
+AQI Alarm shows live AQI for Indian cities, helps you check whether you should go out, compare cities, and see the most polluted places right now.
+It is for people in India who want a quick, plain-language view of current air quality.
+
+Built by Aditya Pratap: https://my-portfolio-khaki-gamma-94.vercel.app/about.html
