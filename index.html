@@ -13,10 +13,21 @@
 <title>AQI Alarm India — live air quality</title>
 <meta name="description" content="Live AQI for Indian cities in plain language. Check air quality, see whether you should go out, compare cities and see the most polluted places right now.">
 <link rel="canonical" href="https://aqi-alarm.vercel.app/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="AQI Alarm">
+<meta property="og:title" content="AQI Alarm India — live air quality">
+<meta property="og:description" content="Live AQI for Indian cities in plain language. Check air quality, see whether you should go out, compare cities and see the most polluted places right now.">
+<meta property="og:url" content="https://aqi-alarm.vercel.app/">
+<meta property="og:image" content="https://aqi-alarm.vercel.app/icon-512.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AQI Alarm India — live air quality">
+<meta name="twitter:description" content="Live AQI for Indian cities in plain language. Compare cities and see the most polluted places right now.">
+<meta name="twitter:image" content="https://aqi-alarm.vercel.app/icon-512.png">
 <script type="application/ld+json">
 {"@context":"https://schema.org","@graph":[
 {"@type":"Person","@id":"https://adityapratapjhansi.vercel.app/about.html#aditya-pratap","name":"Aditya Pratap","url":"https://adityapratapjhansi.vercel.app/about.html","sameAs":["https://github.com/adityapratap0077-cloud","https://www.linkedin.com/in/aditya-pratap-1244a7383/"]},
-{"@type":"WebSite","name":"AQI Alarm","url":"https://aqi-alarm.vercel.app/","author":{"@id":"https://adityapratapjhansi.vercel.app/about.html#aditya-pratap"}}
+{"@type":"WebSite","name":"AQI Alarm","url":"https://aqi-alarm.vercel.app/","author":{"@id":"https://adityapratapjhansi.vercel.app/about.html#aditya-pratap"}},
+{"@type":"Organization","name":"AQI Alarm","url":"https://aqi-alarm.vercel.app/","logo":"https://aqi-alarm.vercel.app/icon-512.png","founder":{"@id":"https://adityapratapjhansi.vercel.app/about.html#aditya-pratap"}}
 ]}
 </script>
 
@@ -210,6 +221,7 @@
     .sky-aqi span{ animation:none; } .rise,.view.on,.modal.on{ animation-duration:.01s; }
     .pol-fill,.scale-dot,.sun,.sky{ transition:none; } .sk{ animation-duration:2.5s; }
   }
+  .visually-hidden{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); clip-path:inset(50%); white-space:nowrap; }
 </style>
 </head>
 <body>
@@ -223,6 +235,7 @@
 </defs></svg>
 <canvas id="dust"></canvas>
 <div class="wrap"><div class="screen">
+<h1 class="visually-hidden">AQI Alarm — live air quality for Indian cities</h1>
 
   <div class="view on" id="v-air">
     <div class="sky" id="sky">
@@ -272,7 +285,7 @@
     </div>
   </div>
 
-<footer style="text-align:center; padding:26px 22px 96px; font-size:12px; color:#9aa3b2;"><a href="https://adityapratapjhansi.vercel.app/about.html">Built by Aditya Pratap</a></footer>
+<footer style="text-align:center; padding:26px 22px 96px; font-size:12px; color:#9aa3b2; line-height:1.9;"><a href="https://adityapratapjhansi.vercel.app/about.html">Built by Aditya Pratap</a> · <a href="/privacy.html">Privacy</a><br>More by Aditya Pratap: <a href="https://sarkari-radar.vercel.app">SarkariRadar</a> · <a href="https://getreelforge.vercel.app">ReelForge</a></footer>
 </div></div>
 
 <nav class="nav" aria-label="Sections">
